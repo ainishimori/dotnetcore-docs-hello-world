@@ -1,31 +1,35 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
-
-name: Build and deploy ASP.Net Core app to Azure Web App - testdotnet-nishimori
-
+ 
+name: Build and deploy ASP app to Azure Web App - appdep-anishimori
+ 
 on:
   push:
     branches:
       - main
   workflow_dispatch:
-
+ 
 jobs:
   build:
     runs-on: windows-latest
     permissions:
       contents: read #This is required for actions/checkout
-
+ 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up .NET Core
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '8.x'
-
-      - name: Build with dotnet
-        run: dotnet build --configuration Release
-
+ 
+      - name: Setup MSBuild path
+        uses: microsoft/setup-msbuild@v1.0.2
+ 
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v1.0.5
+ 
+      - name: Restore NuGet packages
+        run: nuget restore
+ 
+      - name: Build solution
+        run: dotnet build MySolution.sln --output ./build  
+ 
       - name: Publish to folder
         run: msbuild /nologo /verbosity:m /t:Build /t:pipelinePreDeployCopyAllFilesToOneFolder /p:_PackageTempDir="\published\"
  
@@ -34,33 +38,30 @@ jobs:
         with:
           name: ASP-app
           path: '/published/**'
-
+ 
   deploy:
     runs-on: windows-latest
     needs: build
-    
     permissions:
       id-token: write #This is required for requesting the JWT
       contents: read #This is required for actions/checkout
-
+ 
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: ASP-app
-      
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_D9A69C0B599F47629DC17A05C49EF875 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_3DB130F1BD50472A82562FBA669D5419 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_9B8F9A55965C47AFAAB9D043923F2E92 }}
-
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_B38D09C32A79440D951BEBD7B0C50214 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_8CB0096023DB44EFA64366A9E02C870F }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_E0A681001CE948ED9288B8EF5FFAF032 }}
+ 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'testdotnet-nishimori'
+          app-name: 'appdep-anishimori'
           slot-name: 'Production'
           package: .
-          
