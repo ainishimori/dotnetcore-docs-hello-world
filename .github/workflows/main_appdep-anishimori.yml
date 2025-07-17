@@ -28,7 +28,7 @@ jobs:
         run: nuget restore
 
       - name: Build solution
-        run: dotnet build MySolution.sln --output ./build  dotnet build MySolution.sln
+        run: dotnet build MySolution.sln --output ./build  
 
       - name: Publish to folder
         run: msbuild /nologo /verbosity:m /t:Build /t:pipelinePreDeployCopyAllFilesToOneFolder /p:_PackageTempDir="\published\"
