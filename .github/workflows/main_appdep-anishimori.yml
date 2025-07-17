@@ -67,4 +67,5 @@ jobs:
           app-name: 'appdep-anishimori'
           slot-name: 'Production'
           package: .
+          publish-profile: ***
           
